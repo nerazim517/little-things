@@ -1,0 +1,168 @@
+/******************************************************************************
+
+                              Online C++ Compiler.
+               Code, Compile, Run and Debug C++ program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <iostream>
+#include <vector>
+#include <random>
+using namespace std;
+void printout(vector<vector<char>> &vec)//show value
+    {  
+        for(int i=0;i<vec.size();i++)
+        {
+            for(int j=0;j<vec.size();j++)
+                cout<<vec[i][j];
+            
+            cout<<endl; 
+        }
+    }
+    
+bool set(vector<vector<char>> &vec,char index)//set X
+    {
+        for(int i=0;i<vec.size();i++)
+        {
+            for(int j=0;j<vec.size();j++)
+                if(vec[i][j]==index)
+                    if((vec[i][j]!='O')&&(vec[i][j]!='X'))
+                        {   
+                            
+                            vec[i][j] = 'O';
+                            return true;
+                        }
+        }
+        return false;
+    }
+    
+bool judge(vector<vector<char>> &vec)
+{
+    for(int i=0;i<3;i++)
+    {
+        if((vec[i][0]==vec[i][1])&&(vec[i][1]==vec[i][2]))
+            return true;
+    }
+    for(int i=0;i<3;i++)
+    {
+        if((vec[0][i]==vec[1][i])&&(vec[1][i]==vec[2][i]))
+            return true;
+    }
+    if((vec[0][0]==vec[1][1])&&(vec[1][1]==vec[2][2]))
+        return true;
+    if((vec[2][0]==vec[1][1])&&(vec[1][1]==vec[0][2]))
+        return true;
+    return false;
+}
+
+void DangerJudge(vector<vector<char>> &vec,vector<vector<bool>> &danger)
+{
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+            danger[i][j] = false;
+            
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+        {
+            if((vec[i][j]!='O')&&(vec[i][j]!='X'))
+            {   
+                char temp = vec[i][j];
+                vec[i][j] = 'O';
+                if(judge(vec))
+                    danger[i][j] = true;
+                vec[i][j] = temp;
+            }
+        }
+    
+}
+
+void computerset(vector<vector<char>> &vec,vector<vector<bool>> &danger)
+{   
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+            {
+                if(danger[i][j]==true)
+                {
+                    vec[i][j] = 'X';   
+                    return;
+                }
+            }
+    
+    
+    int x,y;
+    x = rand()%3;
+    y = rand()%3;
+    
+    if((vec[x][y]!='O')&&(vec[x][y]!='X'))
+    {
+        vec[x][y] = 'X';
+    }
+    else
+    {
+        while((vec[x][y]=='O')||(vec[x][y]=='X'))
+        {
+            x = rand()%3;
+            y = rand()%3;
+        }
+        vec[x][y] = 'X';
+    }
+}
+
+
+
+
+int main()//五子棋，玩家先下O，電腦自動後下X
+{   
+    srand( time(NULL) );
+    vector<vector <char>> vec(3,vector<char>(3));
+    vec={{'1','2','3'},{'4','5','6'},{'7','8','9'}};
+    vector<vector <bool>> danger(3,vector<bool>(3));
+    bool win = false;
+    int count = 0;
+    while((win!=true)&&(count<9))
+    {   
+        cout<<"----------------------------------------"<<endl;
+        printout(vec);
+        
+        char index;
+        cin>>index;
+        
+        if(set(vec,index)==false)
+        {
+            cout<<"Error!";
+            return 0;
+        }
+        count++;
+        
+        win = judge(vec);
+        
+        if(win==true)
+            {   
+                printout(vec);
+                cout<<"----------------------------------------"<<endl;
+                cout<<"Player Win!";
+                return 0;
+            }
+        if(count==9)
+            break;
+        cout<<"----------------------------------------"<<endl;
+        printout(vec);
+        DangerJudge(vec,danger);
+        
+        computerset(vec,danger);
+        win = judge(vec);
+        count++;
+        if(win==true)
+            {   
+                cout<<"----------------------------------------"<<endl;
+                printout(vec);
+                cout<<"Comouter Win!";
+                return 0;
+            }
+    }
+    printout(vec);
+    cout<<"平手";
+    
+    return 0;
+}
